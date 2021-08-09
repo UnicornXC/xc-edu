@@ -1,0 +1,67 @@
+package com.xuecheng.framework.domain.course.response;
+
+import com.google.common.collect.ImmutableMap;
+import com.xuecheng.framework.model.response.ResultCode;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.ToString;
+
+
+/**
+ * Created by admin on 2018/3/5.
+ */
+@ToString
+public enum CourseCode implements ResultCode {
+
+    COURSE_DENIED_DELETE(false,31001,"删除课程失败，只允许删除本机构的课程！"),
+    COURSE_PUBLISH_PREVIEW_ISNULL(false,31002,"还没有进行课程预览！"),
+    COURSE_PUBLISH_CREATE_DETAIL_ERROR(false,31003,"创建课程详情页面出错！"),
+    COURSE_PUBLISH_COURSEID_ISNULL(false,31004,"课程Id为空！"),
+    COURSE_PUBLISH_VIEW_ERROR(false,31005,"发布课程视图出错！"),
+    COURSE_MEDIA_TEACHPLAN_ISNULL(false,31100,"选择的课程计划为空"),
+    COURSE_MEDIA_TEACHPLAN_GRADE_ERROR(false, 31103, "选择的课程计划等级错误，只能为叶子节点选择视频资源"),
+    COURSE_MEDIA_URL_ISNULL(false,31101,"选择的媒资文件访问地址为空！"),
+    COURSE_MEDIA_NAME_ISNULL(false,31102,"选择的媒资文件名称为空！"),
+    COURSE_BASE_UPDATE_QUERY_ISNULL( false, 32001, "该课程可能已经被删除，请重新确认！"),
+    COURSE_PUBLISH_CREATE_INDEX_ERROR(false,32002,"课程发布时创建索引失败");
+
+
+    //操作代码
+    @ApiModelProperty(value = "操作是否成功", example = "true", required = true)
+    boolean success;
+
+    //操作代码
+    @ApiModelProperty(value = "操作代码", example = "22001", required = true)
+    int code;
+    //提示信息
+    @ApiModelProperty(value = "操作提示", example = "操作过于频繁！", required = true)
+    String message;
+    private CourseCode(boolean success, int code, String message){
+        this.success = success;
+        this.code = code;
+        this.message = message;
+    }
+    private static final ImmutableMap<Integer, CourseCode> CACHE;
+
+    static {
+        final ImmutableMap.Builder<Integer, CourseCode> builder = ImmutableMap.builder();
+        for (CourseCode commonCode : values()) {
+            builder.put(commonCode.code(), commonCode);
+        }
+        CACHE = builder.build();
+    }
+
+    @Override
+    public boolean success() {
+        return success;
+    }
+
+    @Override
+    public int code() {
+        return code;
+    }
+
+    @Override
+    public String message() {
+        return message;
+    }
+}

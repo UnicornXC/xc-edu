@@ -1,0 +1,21 @@
+server:
+  port: ${PORT:50101}
+
+spring:
+  application:
+    name: xc-govern-center
+
+eureka:
+  client:
+    registerWithEureka: true #服务注册，是否将自己注册到eureka服务中
+    fetchRegistry: true # 服务发现，是否从eureka中获取注册信息，单机状态配置自己的地址（默认不配置占用8761端口）
+    serviceUrl: # eureka服务端与客户端的交互地址，高可用状态配置对方的地址
+      defaultZone: ${EUREKA_SERVER:http://eureka1:50101/eureka/}
+
+    server:
+      # eureka 有一种自我保护模式，开启后，不上报的服务（可能是由于网络异常或其他原因造成，实际上微服务是正常的）不会自动从列表删除
+      enable-self-preservation: false # 是否开启自我保护模式
+      eviction-interval-timer-in-ms: 60000 # 服务注册表清理间隔（单位：ms,默认：60*1000）,清理失效节点
+  instance:
+    hostname: ${EUREKA_DOMAIN:eureka1}
+
