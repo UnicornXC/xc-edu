@@ -90,9 +90,13 @@ class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
     @Bean
     public JwtAccessTokenConverter jwtAccessTokenConverter(CustomUserAuthenticationConverter customUserAuthenticationConverter) {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        KeyPair keyPair = new KeyStoreKeyFactory
-                (keyProperties.getKeyStore().getLocation(), keyProperties.getKeyStore().getSecret().toCharArray())
-                .getKeyPair(keyProperties.getKeyStore().getAlias(),keyProperties.getKeyStore().getPassword().toCharArray());
+        KeyPair keyPair = new KeyStoreKeyFactory(
+                keyProperties.getKeyStore().getLocation(),
+                keyProperties.getKeyStore().getSecret().toCharArray()
+        ).getKeyPair(
+                keyProperties.getKeyStore().getAlias(),
+                keyProperties.getKeyStore().getPassword().toCharArray()
+        );
         converter.setKeyPair(keyPair);
         //配置自定义的CustomUserAuthenticationConverter
         DefaultAccessTokenConverter accessTokenConverter = (DefaultAccessTokenConverter) converter.getAccessTokenConverter();
@@ -102,7 +106,8 @@ class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
     //授权服务器端点配置
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-        /*Collection<TokenEnhancer> tokenEnhancers = applicationContext.getBeansOfType(TokenEnhancer.class).values();
+        /*
+        Collection<TokenEnhancer> tokenEnhancers = applicationContext.getBeansOfType(TokenEnhancer.class).values();
         TokenEnhancerChain tokenEnhancerChain=new TokenEnhancerChain();
         tokenEnhancerChain.setTokenEnhancers(new ArrayList<>(tokenEnhancers));
 
@@ -118,7 +123,8 @@ class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
                 .authenticationManager(authenticationManager)
                 .userDetailsService(userDetailsService)
                         //.tokenStore(tokenStore);
-                .tokenServices(defaultTokenServices);*/
+                .tokenServices(defaultTokenServices);
+        */
         endpoints.accessTokenConverter(jwtAccessTokenConverter)
                 .authenticationManager(authenticationManager)//认证管理器
                 .tokenStore(tokenStore)//令牌存储

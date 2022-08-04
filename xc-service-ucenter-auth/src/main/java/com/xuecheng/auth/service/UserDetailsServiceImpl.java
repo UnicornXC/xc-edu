@@ -35,11 +35,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      *  XcUser() -----------------> XcUserExt()
      *
      *
-     *
      *              implements                 extends
      *  UserDetail -------------->  User -------------------> UserJwt()
-     *
-     *
      *
      *  -------------------------------------------------------------------------------------
      *

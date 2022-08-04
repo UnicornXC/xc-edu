@@ -16,12 +16,14 @@ import org.springframework.web.bind.annotation.RequestBody;
  * - 1. FeignClient接口在有参数的时候，必须要在使用的时候添加
  *     + @PatVariable()
  *     + @RequestParam();
+ *     + @RequestBody()
  * - 2. FeignClient返回值为复杂对象的时，其类型必须要含有无参构造函数
  */
 
 // 指定调用的远程服务的名称
 @FeignClient(value= XcServiceList.XC_SERVICE_MANAGE_CMS)
 public interface CmsPageClient {
+
     /* 根据页面的id查询页面的信息，远程调用 */
     @GetMapping("/cms/page/get/{id}")
     CmsPage findCmsPageById(@PathVariable("id")String id);
