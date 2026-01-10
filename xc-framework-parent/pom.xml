@@ -4,11 +4,22 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <modules>
+        <module>../xc-framework-common</module>
+        <module>../xc-framework-model</module>
+        <module>../xc-framework-utils</module>
+        <module>../xc-service-api</module>
         <module>../xc-govern-center</module>
+        <module>../xc-govern-gateway</module>
         <module>../xc-service-manage-cms</module>
         <module>../xc-service-manage-cms-client</module>
         <module>../xc-service-manage-course</module>
         <module>../xc-service-search</module>
+        <module>../xc-service-learning</module>
+        <module>../xc-service-manage-media</module>
+        <module>../xc-service-manage-media-processor</module>
+        <module>../xc-service-manage-order</module>
+        <module>../xc-service-ucenter</module>
+        <module>../xc-service-ucenter-auth</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -156,7 +167,7 @@
     </dependencyManagement>
     <build>
         <finalName>${project.artifactId}</finalName>
-            <plugins>
+        <plugins>
             <!-- &lt;!&ndash; 资源文件拷贝插件 &ndash;&gt;
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -175,10 +186,7 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
+
         </plugins>
     </build>
 </project>
