@@ -19,10 +19,11 @@ public class CmsPageController implements CmsPageControllerApi {
 
     @Override
     @GetMapping("/list/{page}/{size}")
-    public QueryResponseResult findList(
-            @PathVariable("page") int page,
-            @PathVariable("size") int size,
-            QueryPageRequest queryPageRequest) {
+    public QueryResponseResult<CmsPage> findList(
+            @PathVariable int page,
+            @PathVariable int size,
+            QueryPageRequest queryPageRequest
+    ) {
 
     /*    List<CmsPage> list = new ArrayList<>();
         QueryResult queryResult = new QueryResult();
@@ -37,36 +38,31 @@ public class CmsPageController implements CmsPageControllerApi {
 
     @Override
     @PostMapping("/add")
-    public CmsPageResult add(
-            @RequestBody CmsPage cmsPage){
+    public CmsPageResult add(@RequestBody CmsPage cmsPage) {
         return pageService.addPage(cmsPage);
     }
 
     @Override
     @GetMapping("/get/{id}")
-    public CmsPage findById(@PathVariable("id") String id) {
+    public CmsPageResult findById(@PathVariable String id) {
         return pageService.findById(id);
-
     }
 
     @Override
     @PutMapping("/edit/{id}")
-    public CmsPageResult update(
-            @PathVariable("id") String id,
-            @RequestBody CmsPage cmsPage) {
-        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    public CmsPageResult update(@PathVariable String id, @RequestBody CmsPage cmsPage) {
         return pageService.update(id,cmsPage);
     }
 
     @Override
     @DeleteMapping("/del/{id}")
-    public ResponseResult delete(@PathVariable("id") String id) {
+    public ResponseResult delete(@PathVariable String id) {
         return pageService.delete(id);
     }
 
     @Override
     @PostMapping("/postPage/{pageId}")
-    public ResponseResult post(@PathVariable("pageId") String pageId) {
+    public ResponseResult post(@PathVariable String pageId) {
         return pageService.post(pageId);
     }
 

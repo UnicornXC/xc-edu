@@ -76,15 +76,20 @@ public class CmsPageService {
      * @size 页面记录数
      * @param queryPageRequest  查询条件
      */
-    public QueryResponseResult findList(int page, int size, QueryPageRequest queryPageRequest) {
-         if (queryPageRequest==null){
-             queryPageRequest = new QueryPageRequest();
-         }
+    public QueryResponseResult<CmsPage> findList(
+            int page, int size, QueryPageRequest queryPageRequest
+    ) {
+        if (queryPageRequest == null) {
+            queryPageRequest = new QueryPageRequest();
+        }
          //自定义条件查询
          //自定义条件匹配器
-        ExampleMatcher exampleMatcher = ExampleMatcher.matching()
-                .withMatcher("pageAliase",
-                        ExampleMatcher.GenericPropertyMatchers.contains());
+        ExampleMatcher exampleMatcher = ExampleMatcher
+                .matching()
+                .withMatcher(
+                        "pageAliase",
+                        ExampleMatcher.GenericPropertyMatchers.contains()
+                );
          //定义值对象
         CmsPage cmsPage = new CmsPage();
         //设置条件值
@@ -100,23 +105,20 @@ public class CmsPageService {
         //定义条件对象
         Example<CmsPage> example = Example.of(cmsPage,exampleMatcher);
 
-        if (page<=0){
-            page=1;
+        if (page <= 0) {
+            page = 1;
         }
-        page = page-1;
-        if (size<=0){
-            size=10;
+        page = page - 1;
+        if (size <= 0) {
+            size = 10;
         }
         //分页对象
         Pageable pageable = PageRequest.of(page,size);
         Page<CmsPage> list = pageRepository.findAll(example,pageable);//条件查询
-        QueryResult queryResult = new QueryResult();
+        QueryResult<CmsPage> queryResult = new QueryResult<>();
         queryResult.setList(list.getContent());
         queryResult.setTotal(list.getTotalElements());
-        QueryResponseResult queryResponseResult =
-                new QueryResponseResult(CommonCode.SUCCESS, queryResult);
-        return queryResponseResult;
-
+        return new QueryResponseResult<>(CommonCode.SUCCESS, queryResult);
     }
 
     /**
@@ -125,7 +127,7 @@ public class CmsPageService {
      * @return
      */
     public CmsPageResult addPage(CmsPage cmsPage){
-        //保证数据的唯一性，需要根据数据的siteId,pageName,pageWebPath进行校验
+        //保证数据的唯一性，需要根据数据的siteId,pageName,pageWebPath进行校验 (创建唯一索引)
         CmsPage page = pageRepository.findBySiteIdAndAndPageNameAndPageWebPath(
                 cmsPage.getSiteId(), cmsPage.getPageName(), cmsPage.getPageWebPath()
         );
@@ -144,13 +146,13 @@ public class CmsPageService {
      * @param id
      * @return
      */
-    public CmsPage findById(String id){
+    public CmsPageResult findById(String id){
         Optional<CmsPage> op = pageRepository.findById(id);
         if (op.isPresent()){
             CmsPage cmsPage = op.get();
-            return cmsPage;
+            return new CmsPageResult(CommonCode.SUCCESS, cmsPage);
         }
-        return null;
+        return new CmsPageResult(CommonCode.FAIL, null);
     }
 
     /**
@@ -160,8 +162,9 @@ public class CmsPageService {
      * @return
      */
     public CmsPageResult update(String id,CmsPage cmsPage){
-        CmsPage cmsPage1 = this.findById(id);
-        if (cmsPage1!=null){
+        CmsPageResult result = this.findById(id);
+        if (result.isSuccess()){
+            CmsPage cmsPage1 = result.getCmsPage();
             //修改数据
             cmsPage1.setPageAliase(cmsPage.getPageAliase());
             cmsPage1.setSiteId(cmsPage.getSiteId());
@@ -246,10 +249,11 @@ public class CmsPageService {
     //获取数据的模板信息
     private String getTemplateByPageId(String pageId){
         //取出页面的信息
-        CmsPage cmsPage = this.findById(pageId);
-        if (cmsPage==null){
+        CmsPageResult result = this.findById(pageId);
+        if (!result.isSuccess()){
             ExceptionCast.cast(CmsCode.CMS_PAGE_NOTEXISTS);
         }
+        CmsPage cmsPage = result.getCmsPage();
         String templateId = cmsPage.getTemplateId();
         if (templateId==null){
             ExceptionCast.cast(CmsCode.CMS_GENERATEHTML_TEMPLATEISNULL);
@@ -283,11 +287,12 @@ public class CmsPageService {
     //获取数据的模型
     private Map getModelByPageId(String pageId){
         //取出页面的信息
-        CmsPage cmsPage = this.findById(pageId);
-        if (cmsPage==null){
+        CmsPageResult result = this.findById(pageId);
+        if (!result.isSuccess()){
             ExceptionCast.cast(CmsCode.CMS_PAGE_NOTEXISTS);
         }
         //取出页面中的dataUrl
+        CmsPage cmsPage = result.getCmsPage();
         String dataUrl = cmsPage.getDataUrl();
         if (StringUtils.isEmpty(dataUrl)){
             ExceptionCast.cast(CmsCode.CMS_GENERATEHTML_DATAURLISNULL);
@@ -354,10 +359,11 @@ public class CmsPageService {
     }
     /* 发送消息到rabbitMQ */
     private void sendPostPage(String pageId) {
-        CmsPage cmsPage = this.findById(pageId);
-        if (cmsPage==null){
+        CmsPageResult result = this.findById(pageId);
+        if (!result.isSuccess()){
             ExceptionCast.cast(CmsCode.CMS_PAGE_NOTEXISTS);
         }
+        CmsPage cmsPage = result.getCmsPage();
         Map<String,String> msgMap = new HashMap();
         msgMap.put("pageId",pageId);
         String msg = JSON.toJSONString(msgMap);

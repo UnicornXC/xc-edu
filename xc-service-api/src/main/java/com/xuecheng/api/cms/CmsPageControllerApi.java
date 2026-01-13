@@ -27,7 +27,7 @@ public interface CmsPageControllerApi {
 
     //根据页面的id查询页面信息
     @ApiOperation("根据页面的id查询页面信息")
-    CmsPage findById(String id);
+    CmsPageResult findById(String id);
 
     //根据页面id更新页面的信息
     @ApiOperation("根据id更新页面")

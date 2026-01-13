@@ -6,11 +6,11 @@ spring:
     name: xc-service-manage-cms
   data:
     mongodb:
-      uri: mongodb://localhost:27017
+      uri: mongodb://admin:admin@192.168.80.190:27017
       database: xc_cms
 
   rabbitmq:
-    host: 192.168.64.128
+    host: 8.154.36.53
     port: 5672
     username: admin
     password: admin
