@@ -44,6 +44,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -202,11 +203,7 @@ public class CmsPageService {
      */
     public CmsConfig getConfigById(String id){
         Optional<CmsConfig> optional = cmsConfigRepository.findById(id);
-        if (optional.isPresent()){
-            CmsConfig cmsConfig = optional.get();
-            return  cmsConfig;
-        }
-        return null;
+        return optional.orElse(null);
     }
 
     /**
@@ -240,10 +237,9 @@ public class CmsPageService {
         StringTemplateLoader templateLoader = new StringTemplateLoader();
         templateLoader.putTemplate("template",template);
         configuration.setTemplateLoader(templateLoader);
-        Template template1 = configuration.getTemplate("template", "UTF_8");
+        Template template1 = configuration.getTemplate("template", StandardCharsets.UTF_8.toString());
         //合并页面与数据模型
-        String html = FreeMarkerTemplateUtils.processTemplateIntoString(template1, map);
-        return html;
+        return FreeMarkerTemplateUtils.processTemplateIntoString(template1, map);
     }
 
     //获取数据的模板信息
@@ -272,13 +268,9 @@ public class CmsPageService {
             GridFsResource gridFsResource = new GridFsResource(file,gridFSDownloadStream);
 
             try {
-                String content = IOUtils.toString(gridFsResource.getInputStream(), "UTF-8");
-                return content;
+                return IOUtils.toString(gridFsResource.getInputStream(), StandardCharsets.UTF_8);
             } catch (IOException e) {
                 e.printStackTrace();
-                return null;
-            }finally {
-
             }
         }
         return null;
@@ -299,11 +291,7 @@ public class CmsPageService {
         }
         //通过restTemplate请求dataUrl中的数据
         ResponseEntity<Map> forEntity = restTemplate.getForEntity(dataUrl, Map.class);
-        if (forEntity != null) {
-            Map body = forEntity.getBody();
-            return body;
-        }
-        return null;
+        return forEntity == null ? null : forEntity.getBody();
     }
 
     /**

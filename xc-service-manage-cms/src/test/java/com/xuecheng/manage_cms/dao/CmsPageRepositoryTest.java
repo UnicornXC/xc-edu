@@ -35,7 +35,7 @@ public class CmsPageRepositoryTest {
     }
 
     @Test
-    public void testUPdate(){
+    public void testUpdate(){
         Optional<CmsPage> option =
                 cmsPageRepository.findById("5a754adf6abb500ad05688d9");
         if (option.isPresent()) {

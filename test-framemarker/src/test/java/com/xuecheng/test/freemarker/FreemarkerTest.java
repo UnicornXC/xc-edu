@@ -7,6 +7,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import org.apache.commons.io.IOUtils;
 import org.bson.types.ObjectId;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +26,15 @@ public class FreemarkerTest {
     @Autowired
     private GridFsTemplate gridFsTemplate;
 
+    private Configuration initConfig() {
+        return new Configuration(Configuration.getVersion());
+    }
+
     //基于模板生成html文件
     @Test
     public void testGenerateHtml() throws IOException, TemplateException {
         //定义配置类
-        Configuration configuration = new Configuration(Configuration.getVersion());
+        Configuration configuration = initConfig();
         //定义模板
         //获取地址、
         String classPath = this.getClass().getResource("/").getPath();
@@ -37,23 +42,21 @@ public class FreemarkerTest {
         //获取模板文件分内容
         Template template = configuration.getTemplate("test01.ftl");
         //定义数据模型
-        Map map = getMap();
+        Map<?,?> map = getMap();
         //静态化
         String content = FreeMarkerTemplateUtils.processTemplateIntoString(template, map);
         InputStream is = IOUtils.toInputStream(content);
-        FileOutputStream fos = new FileOutputStream(
-                new File("d:/abc/test-freemarker.html"));
+        FileOutputStream fos = new FileOutputStream(new File("./tmp/test-freemarker.html"));
         IOUtils.copy(is, fos);
         fos.close();
         is.close();
-
     }
 
     //基于字符串生成静态页面文件
     @Test
     public void testGenerateHtmlByString() throws IOException, TemplateException {
         //定义配置类
-        Configuration configuration = new Configuration(Configuration.getVersion());
+        Configuration configuration = initConfig();
         //设置字符模板
         String templateString = "<html>\n" +
                 "<head></head>\n" +
@@ -71,8 +74,7 @@ public class FreemarkerTest {
         //静态化
         String content = FreeMarkerTemplateUtils.processTemplateIntoString(template, map);
         InputStream is = IOUtils.toInputStream(content);
-        FileOutputStream fos = new FileOutputStream(
-                new File("d:/abc/test02-freemarker.html"));
+        FileOutputStream fos = new FileOutputStream(new File("./tmp/test02-freemarker.html"));
         IOUtils.copy(is, fos);
         fos.close();
         is.close();
@@ -81,8 +83,8 @@ public class FreemarkerTest {
     //获取数据模型
     public Map getMap() {
         Map map = new HashMap();
-        //向数据模型放数据       
-        // 使用Map作为传值对象，相当于jsp中的Model对象  
+        //向数据模型放数据
+        // 使用Map作为传值对象，相当于jsp中的Model对象
         map.put("name", "黑马程序员");
 
         //测试list数据
@@ -95,7 +97,7 @@ public class FreemarkerTest {
         Student stu2 = new Student();
         stu2.setName("小红");
         stu2.setMoney(200.1f);
-        stu2.setAge(19); //        
+        stu2.setAge(19); //
         stu2.setBirthday(new Date());
         List<Student> friends = new ArrayList<>();
         friends.add(stu1);
@@ -104,19 +106,19 @@ public class FreemarkerTest {
         List<Student> stus = new ArrayList<>();
         stus.add(stu1);
         stus.add(stu2);
-        //向数据模型放数据         
+        //向数据模型放数据
         map.put("stus", stus);
 
-        //准备map数据         
+        //准备map数据
         //========================================
         HashMap<String, Student> stuMap = new HashMap<>();
         stuMap.put("stu1", stu1);
         stuMap.put("stu2", stu2);
-        //向数据模型放数据         
+        //向数据模型放数据
         map.put("stu1", stu1);
-        //向数据模型放数据         
+        //向数据模型放数据
         map.put("stuMap", stuMap);
-        //返回模板文件名称         
+        //返回模板文件名称
         return map;
     }
 

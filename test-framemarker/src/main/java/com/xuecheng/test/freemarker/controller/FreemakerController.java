@@ -26,11 +26,6 @@ public class FreemakerController {
         return "course";
     }
 
-
-
-
-
-
     @RequestMapping("/banner")
     public String freemarker(Map<String,Object> map){
 
@@ -44,8 +39,8 @@ public class FreemakerController {
 
     @RequestMapping("/test01")
     public String test01(Map<String,Object> map){
-        //向数据模型放数据       
-        // 使用Map作为传值对象，相当于jsp中的Model对象  
+        //向数据模型放数据
+        // 使用Map作为传值对象，相当于jsp中的Model对象
         map.put("name","黑马程序员");
 
         //测试list数据
@@ -58,7 +53,7 @@ public class FreemakerController {
         Student stu2 = new Student();
         stu2.setName("小红");
         stu2.setMoney(200.1f);
-        stu2.setAge(19); //        
+        stu2.setAge(19); //
         stu2.setBirthday(new Date());
         List<Student> friends = new ArrayList<>();
         friends.add(stu1);
@@ -67,19 +62,19 @@ public class FreemakerController {
         List<Student> stus = new ArrayList<>();
         stus.add(stu1);
         stus.add(stu2);
-        //向数据模型放数据         
+        //向数据模型放数据
         map.put("stus",stus);
 
-        //准备map数据         
+        //准备map数据
         //========================================
         HashMap<String,Student> stuMap = new HashMap<>();
         stuMap.put("stu1",stu1);
         stuMap.put("stu2",stu2);
-        //向数据模型放数据         
+        //向数据模型放数据
         map.put("stu1",stu1);
-        //向数据模型放数据         
+        //向数据模型放数据
         map.put("stuMap",stuMap);
-        //返回模板文件名称         
+        //返回模板文件名称
         return "test01";
     }
 
