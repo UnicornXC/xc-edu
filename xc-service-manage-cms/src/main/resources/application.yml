@@ -10,10 +10,10 @@ spring:
       database: xc_cms
 
   rabbitmq:
-    host: 8.154.36.53
+    host: 192.168.80.190
     port: 5672
-    username: admin
-    password: admin
+    username: guest
+    password: guest
     virtual-host: /xuecheng
 xuecheng:
   mq:

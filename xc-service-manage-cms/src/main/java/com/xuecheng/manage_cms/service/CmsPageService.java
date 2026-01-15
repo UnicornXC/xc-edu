@@ -12,6 +12,7 @@ import com.xuecheng.framework.domain.cms.request.QueryPageRequest;
 import com.xuecheng.framework.domain.cms.response.CmsCode;
 import com.xuecheng.framework.domain.cms.response.CmsPageResult;
 import com.xuecheng.framework.domain.cms.response.CmsPostPageResult;
+import com.xuecheng.framework.enums.CmsPageTypeEnum;
 import com.xuecheng.framework.exception.ExceptionCast;
 import com.xuecheng.framework.model.response.CommonCode;
 import com.xuecheng.framework.model.response.QueryResponseResult;
@@ -214,12 +215,20 @@ public class CmsPageService {
      * @throws TemplateException
      */
     public String getPageHtml(String pageId) throws IOException, TemplateException {
+        //取出页面的信息
+        CmsPageResult result = this.findById(pageId);
+        if (!result.isSuccess()){
+            ExceptionCast.cast(CmsCode.CMS_PAGE_NOTEXISTS);
+        }
+        //取出页面中的dataUrl
+        CmsPage cmsPage = result.getCmsPage();
+
         //静态化程序获取页面的dataUrl
-        Map map = getModelByPageId(pageId);
+        Map map = getModelByPageId(cmsPage);
         if (map==null){
             ExceptionCast.cast(CmsCode.CMS_GENERATEHTML_DATAISNULL);
         }
-        String template = getTemplateByPageId(pageId);
+        String template = getTemplateByPageId(cmsPage);
         if (template==null){
             ExceptionCast.cast(CmsCode.CMS_GENERATEHTML_TEMPLATEISNULL);
         }
@@ -243,13 +252,7 @@ public class CmsPageService {
     }
 
     //获取数据的模板信息
-    private String getTemplateByPageId(String pageId){
-        //取出页面的信息
-        CmsPageResult result = this.findById(pageId);
-        if (!result.isSuccess()){
-            ExceptionCast.cast(CmsCode.CMS_PAGE_NOTEXISTS);
-        }
-        CmsPage cmsPage = result.getCmsPage();
+    private String getTemplateByPageId(CmsPage cmsPage){
         String templateId = cmsPage.getTemplateId();
         if (templateId==null){
             ExceptionCast.cast(CmsCode.CMS_GENERATEHTML_TEMPLATEISNULL);
@@ -277,14 +280,10 @@ public class CmsPageService {
     }
 
     //获取数据的模型
-    private Map getModelByPageId(String pageId){
-        //取出页面的信息
-        CmsPageResult result = this.findById(pageId);
-        if (!result.isSuccess()){
-            ExceptionCast.cast(CmsCode.CMS_PAGE_NOTEXISTS);
+    private Map getModelByPageId(CmsPage cmsPage){
+        if (CmsPageTypeEnum.Static.getCode().equals(cmsPage.getPageType())) {
+            return new HashMap<>();
         }
-        //取出页面中的dataUrl
-        CmsPage cmsPage = result.getCmsPage();
         String dataUrl = cmsPage.getDataUrl();
         if (StringUtils.isEmpty(dataUrl)){
             ExceptionCast.cast(CmsCode.CMS_GENERATEHTML_DATAURLISNULL);
@@ -316,7 +315,7 @@ public class CmsPageService {
             ExceptionCast.cast(CmsCode.CMS_GENERATEHTML_HTMLISNULL);
         }
         //将静态化的文件存储到GridFS
-        CmsPage page = saveHtml(pageId,html);
+        CmsPage page = saveHtml(pageId, html);
         //向rabbitMQ发送消息
         sendPostPage(pageId);
         return new ResponseResult(CommonCode.SUCCESS);
