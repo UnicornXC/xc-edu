@@ -12,6 +12,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
@@ -37,8 +39,8 @@ public class FreemarkerTest {
         Configuration configuration = initConfig();
         //定义模板
         //获取地址、
-        String classPath = this.getClass().getResource("/").getPath();
-        configuration.setDirectoryForTemplateLoading(new File(classPath + "/templates/"));
+        String classPath = System.getProperty("user.dir");
+        configuration.setDirectoryForTemplateLoading(new File(classPath + "/src/main/resources/templates/"));
         //获取模板文件分内容
         Template template = configuration.getTemplate("test01.ftl");
         //定义数据模型
@@ -134,12 +136,18 @@ public class FreemarkerTest {
      */
     @Test
     public void testStoreCourseTemplate() throws FileNotFoundException {
-
-        File file = new File(this.getClass().getResource("/").getPath() + "/templates/course.ftl");
+        String classPath = System.getProperty("user.dir");
+        File file = new File(classPath + "/src/main/resources/templates/index_category.ftl");
         FileInputStream fis = new FileInputStream(file);
         // 使用mongoDB 提供的 GridFS 操作API 存储文件
-        ObjectId id = gridFsTemplate.store(fis, "课程详情模板文件", "");
-        System.out.println(id.toString());
+        ObjectId id = gridFsTemplate.store(fis, "分类导航模板", "");
+        System.out.println(id);
 
+        // 5a7be68cd019f14d90a1fb1d
+    }
+
+    @Test
+    public void delete() {
+        gridFsTemplate.delete(Query.query(Criteria.where("_id").is("5a7719d76abb5042987eec3a")));
     }
 }
