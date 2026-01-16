@@ -5,9 +5,9 @@ spring:
     name: xc-service-manage-course
   datasource:
     druid:
-      url: jdbc:mysql://localhost:3306/xc_course?characterEncoding=utf-8
+      url: jdbc:mysql://192.168.80.190:3306/xc_course?characterEncoding=utf-8
       username: root
-      password: root
+      password: root@wsx86
       driverClassName: com.mysql.jdbc.Driver
       initialSize: 5  #初始建立连接数量
       minIdle: 5  #最小连接数量
@@ -44,7 +44,7 @@ ribbon:
 course-publish:
   siteId: 5a751fab6abb5044e0d19ea1
   templateId: 5a925be7b00ffc4b3c1578b5
-  previewUrl: http://www.xuecheng.com/cms/preview/
+  previewUrl: http://www.xconline.edu/cms/preview/
   pageWebPath: /course/detail/
   pagePhysicalPath: /static/course/detail/
   dataUrlPre: http://localhost:31200/course/courseview/

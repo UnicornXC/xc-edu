@@ -3,7 +3,9 @@ package com.xuecheng.manage_course;
 import com.xuecheng.framework.interceptor.FeignClientInterceptor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -18,11 +20,16 @@ import org.springframework.web.client.RestTemplate;
  **/
 @EnableFeignClients     /* 注明开启feign客户端 */
 @EnableDiscoveryClient  /* 注册eureka服务到eureka服务器,同时自己也是eureka 的调用者，所以需要发现其他服务 */
-@SpringBootApplication
 @EntityScan("com.xuecheng.framework.domain.course")//扫描实体类
 @ComponentScan(basePackages={"com.xuecheng.api"})//扫描接口
 @ComponentScan(basePackages={"com.xuecheng.manage_course"})
 @ComponentScan(basePackages={"com.xuecheng.framework"})//扫描common下的所有类
+@SpringBootApplication(
+    exclude = {
+        MongoAutoConfiguration.class,
+        MongoDataAutoConfiguration.class
+    }
+)
 public class ManageCourseApplication {
     public static void main(String[] args) throws Exception {
         SpringApplication.run(ManageCourseApplication.class, args);
