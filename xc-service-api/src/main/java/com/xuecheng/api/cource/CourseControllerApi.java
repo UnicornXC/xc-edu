@@ -10,6 +10,7 @@ import com.xuecheng.framework.domain.course.ext.CourseView;
 import com.xuecheng.framework.domain.course.ext.TeachplanNode;
 import com.xuecheng.framework.domain.course.request.CourseListRequest;
 import com.xuecheng.framework.domain.course.response.AddCourseResult;
+import com.xuecheng.framework.domain.course.response.QueryCoursePicResult;
 import com.xuecheng.framework.model.response.QueryResponseResult;
 import com.xuecheng.framework.model.response.ResponseResult;
 import io.swagger.annotations.Api;
@@ -56,6 +57,15 @@ public interface CourseControllerApi {
 
     @ApiOperation("保存媒资与课程计划的关系信息")
     ResponseResult saveMedia(TeachplanMedia teachplanMedia);
+
+    @ApiOperation("查找课程图片列表")
+    QueryCoursePicResult queryCoursePic(String courseId);
+
+    @ApiOperation("添加课程图片")
+    ResponseResult addCoursePic(String courseId, String pic);
+
+    @ApiOperation("删除课程图片")
+    ResponseResult deleteCoursePic(String courseId);
 
 
 

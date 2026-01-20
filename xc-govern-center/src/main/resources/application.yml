@@ -12,10 +12,10 @@ eureka:
     serviceUrl: # eureka服务端与客户端的交互地址，高可用状态配置对方的地址
       defaultZone: ${EUREKA_SERVER:http://eureka1:50101/eureka/}
 
-    server:
-      # eureka 有一种自我保护模式，开启后，不上报的服务（可能是由于网络异常或其他原因造成，实际上微服务是正常的）不会自动从列表删除
-      enable-self-preservation: false # 是否开启自我保护模式
-      eviction-interval-timer-in-ms: 60000 # 服务注册表清理间隔（单位：ms,默认：60*1000）,清理失效节点
+  server:
+    # eureka 有一种自我保护模式，开启后，不上报的服务（可能是由于网络异常或其他原因造成，实际上微服务是正常的）不会自动从列表删除
+    enable-self-preservation: false # 是否开启自我保护模式
+    eviction-interval-timer-in-ms: 60000 # 服务注册表清理间隔（单位：ms,默认：60*1000）,清理失效节点
   instance:
     hostname: ${EUREKA_DOMAIN:eureka1}
 

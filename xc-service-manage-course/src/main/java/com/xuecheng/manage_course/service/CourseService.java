@@ -14,6 +14,7 @@ import com.xuecheng.framework.domain.course.ext.TeachplanNode;
 import com.xuecheng.framework.domain.course.request.CourseListRequest;
 import com.xuecheng.framework.domain.course.response.AddCourseResult;
 import com.xuecheng.framework.domain.course.response.CourseCode;
+import com.xuecheng.framework.domain.course.response.QueryCoursePicResult;
 import com.xuecheng.framework.exception.ExceptionCast;
 import com.xuecheng.framework.model.response.CommonCode;
 import com.xuecheng.framework.model.response.QueryResponseResult;
@@ -172,8 +173,7 @@ public class CourseService {
             qr.setList(courseListPage.getResult());
             qr.setTotal(courseListPage.getTotal());
         }
-        QueryResponseResult<CourseInfo> qrr = new QueryResponseResult(CommonCode.SUCCESS, qr);
-        return qrr;
+        return new QueryResponseResult<>(CommonCode.SUCCESS, qr);
     }
     @Transactional
     public AddCourseResult addCourseBase(CourseBase courseBase){
@@ -185,12 +185,10 @@ public class CourseService {
 
     public CourseBase getCourseBaseById(String courseId){
         Optional<CourseBase> option = courseBaseRepository.findById(courseId);
-        if(option.isPresent()){
-            return option.get();
-        }
+        return option.orElse(null);
         // ExceptionCast.cast(CourseCode.COURSE_GET_NOTEXISTS);
-        return null;
     }
+
     @Transactional
     public ResponseResult updateCourseBaseById(String courseId, CourseBase courseBase){
         CourseBase one = this.getCourseBaseById(courseId);
@@ -227,7 +225,7 @@ public class CourseService {
      */
     public CourseMarket updateCourseMarket(String courseId, CourseMarket courseMarket){
         CourseMarket marketInfo = this.getCourseMarketById(courseId);
-        if (marketInfo!=null){
+        if (marketInfo != null) {
             marketInfo.setCharge(courseMarket.getCharge());
             marketInfo.setStartTime(courseMarket.getStartTime());
             marketInfo.setEndTime(courseMarket.getEndTime());
@@ -235,10 +233,10 @@ public class CourseService {
             marketInfo.setQq(courseMarket.getQq());
             marketInfo.setValid(courseMarket.getValid());
             courseMarketRepository.save(marketInfo);
-        }else{
+        } else {
             /*添加课程营销信息*/
             marketInfo = new CourseMarket();
-            BeanUtils.copyProperties(courseMarket,marketInfo);
+            BeanUtils.copyProperties(courseMarket, marketInfo);
             /*设置课程的id信息*/
             marketInfo.setId(courseId);
             courseMarketRepository.save(marketInfo);
@@ -503,4 +501,38 @@ public class CourseService {
         });
         teachplanMediaPubRepository.saveAll(teachplanMediaPubList);
     }
+
+    /**
+     * 查询课程图片
+     * @param courseId
+     * @return
+     */
+    public QueryCoursePicResult queryCoursePic(String courseId) {
+        CoursePic coursePic = coursePicRepository.findById(courseId).orElse(new CoursePic());
+        return new QueryCoursePicResult(CommonCode.SUCCESS, coursePic.getPic());
+    }
+
+
+    /**
+     * 添加课程图片
+     */
+    public ResponseResult addCoursePic(String courseId, String pic) {
+        CoursePic picture = new CoursePic();
+        picture.setCourseid(courseId);
+        picture.setPic(pic);
+        coursePicRepository.save(picture);
+        return ResponseResult.SUCCESS();
+    }
+
+
+    /**
+     * 删除课程图片
+     * @param courseId
+     * @return
+     */
+    public ResponseResult deleteCoursePic(String courseId) {
+        coursePicRepository.deleteById(courseId);
+        return ResponseResult.SUCCESS();
+    }
+
 }
