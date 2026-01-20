@@ -6,5 +6,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface CmsTemplateRepository extends MongoRepository<CmsTemplate,String> {
 
 
-
+    CmsTemplate findBySiteIdAndTemplateName(String siteId, String templateName);
 }

@@ -130,11 +130,10 @@ public class CmsPageService {
      */
     public CmsPageResult addPage(CmsPage cmsPage){
         //保证数据的唯一性，需要根据数据的siteId,pageName,pageWebPath进行校验 (创建唯一索引)
-        CmsPage page = pageRepository.findBySiteIdAndAndPageNameAndPageWebPath(
+        CmsPage page = pageRepository.findBySiteIdAndPageNameAndPageWebPath(
                 cmsPage.getSiteId(), cmsPage.getPageName(), cmsPage.getPageWebPath()
         );
         if (page == null){
-
             // 添加页面主键由系统（Spring Data）自动生成，
             cmsPage.setPageId(null);
             pageRepository.save(cmsPage);
@@ -150,11 +149,8 @@ public class CmsPageService {
      */
     public CmsPageResult findById(String id){
         Optional<CmsPage> op = pageRepository.findById(id);
-        if (op.isPresent()){
-            CmsPage cmsPage = op.get();
-            return new CmsPageResult(CommonCode.SUCCESS, cmsPage);
-        }
-        return new CmsPageResult(CommonCode.FAIL, null);
+        return op.map(cmsPage -> new CmsPageResult(CommonCode.SUCCESS, cmsPage))
+                .orElseGet(() -> new CmsPageResult(CommonCode.FAIL, null));
     }
 
     /**

@@ -254,22 +254,13 @@ public class CourseService {
 
         // 根据id 去查询课程的基本信息
         Optional<CourseBase> baseOptional = courseBaseRepository.findById(id);
-        if(baseOptional.isPresent()){
-            CourseBase courseBase = baseOptional.get();
-            courseView.setCourseBase(courseBase);
-        }
+        baseOptional.ifPresent(courseView::setCourseBase);
         // 根据id 去查询课程的图片信息
         Optional<CoursePic> picOptional = coursePicRepository.findById(id);
-        if (picOptional.isPresent()){
-            CoursePic coursePic = picOptional.get();
-            courseView.setCoursePic(coursePic);
-        }
+        picOptional.ifPresent(courseView::setCoursePic);
         // 根据id 去查询课程的营销信息
         Optional<CourseMarket> marketOptional = courseMarketRepository.findById(id);
-        if (marketOptional.isPresent()){
-            CourseMarket courseMarket = marketOptional.get();
-            courseView.setCourseMarket(courseMarket);
-        }
+        marketOptional.ifPresent(courseView::setCourseMarket);
         // 根据id 去查询课程的计划信息
         TeachplanNode teachplanNode = teachplanMapper.selectList(id);
         courseView.setTeachplanNode(teachplanNode);
