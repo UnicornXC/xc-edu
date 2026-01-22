@@ -56,22 +56,21 @@ public class CmsPageService {
 
     @Autowired
     private CmsPageRepository pageRepository;
-    @Autowired
-    private CmsConfigRepository cmsConfigRepository;
-    @Autowired
-    private CmsTemplateRepository templateRepository;
 
     @Autowired
-    private CmsSiteRepository cmsSiteRepository;
+    private CmsSiteService siteService;
+
+    @Autowired
+    private CmsTemplateService templateService;
 
     @Autowired
     private RestTemplate restTemplate;
-    @Autowired
-    private GridFSBucket gridFSBucket;
-    @Autowired
-    private GridFsTemplate gridFsTemplate;
+
     @Autowired
     private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private GridFileService gridFileService;
 
     /**
      * @page 页码，从1开始
@@ -195,16 +194,6 @@ public class CmsPageService {
     }
 
     /**
-     * 根据id查询cms的配置信息
-     * @param id
-     * @return
-     */
-    public CmsConfig getConfigById(String id){
-        Optional<CmsConfig> optional = cmsConfigRepository.findById(id);
-        return optional.orElse(null);
-    }
-
-    /**
      * 静态页面生成
      * @param pageId
      * @return
@@ -225,7 +214,7 @@ public class CmsPageService {
         if (map==null){
             ExceptionCast.cast(CmsCode.CMS_GENERATEHTML_DATAISNULL);
         }
-        String template = getTemplateByPageId(cmsPage);
+        String template = templateService.getTemplateFileByTemplateId(cmsPage.getTemplateId());
         if (template==null){
             ExceptionCast.cast(CmsCode.CMS_GENERATEHTML_TEMPLATEISNULL);
         }
@@ -248,33 +237,6 @@ public class CmsPageService {
         return FreeMarkerTemplateUtils.processTemplateIntoString(template1, map);
     }
 
-    //获取数据的模板信息
-    private String getTemplateByPageId(CmsPage cmsPage){
-        String templateId = cmsPage.getTemplateId();
-        if (templateId==null){
-            ExceptionCast.cast(CmsCode.CMS_GENERATEHTML_TEMPLATEISNULL);
-        }
-        //借助tmplateId在数据库中查找对应的模板
-        Optional<CmsTemplate> optional = templateRepository.findById(templateId);
-        if (optional.isPresent()){
-            CmsTemplate cmsTemplate = optional.get();
-            String templateFileId = cmsTemplate.getTemplateFileId();
-            //根据模板中的TemplateFileId查找gridFS文件系统的文件
-            GridFSFile file = gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(templateFileId)));
-
-            //打开一个流对象
-            GridFSDownloadStream gridFSDownloadStream = gridFSBucket.openDownloadStream(file.getObjectId());
-            //
-            GridFsResource gridFsResource = new GridFsResource(file,gridFSDownloadStream);
-
-            try {
-                return IOUtils.toString(gridFsResource.getInputStream(), StandardCharsets.UTF_8);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
 
     //获取数据的模型
     private Map getModelByPageId(CmsPage cmsPage){
@@ -329,11 +291,10 @@ public class CmsPageService {
         //存储之前先删除
         String htmlFileId = cmsPage.getHtmlFileId();
         if (StringUtils.isNotEmpty(htmlFileId)){
-            gridFsTemplate.delete(Query.query(Criteria.where("_id").is(htmlFileId)));
+            gridFileService.deleteById(htmlFileId);
         }
         //保存文件
-        InputStream is = IOUtils.toInputStream(html);
-        ObjectId objectId = gridFsTemplate.store(is, cmsPage.getPageName());
+        ObjectId objectId = gridFileService.storeFile(IOUtils.toInputStream(html), cmsPage.getPageName());
         //文件id
         String fileId = objectId.toString();
         //将文件id存储到文件
@@ -363,7 +324,7 @@ public class CmsPageService {
      */
     public CmsPageResult save(CmsPage cmsPage) {
         //先检查页面是否已经存在，需要根据数据的siteId,pageName,pageWebPath进行校验
-        CmsPage page = pageRepository.findBySiteIdAndAndPageNameAndPageWebPath(
+        CmsPage page = pageRepository.findBySiteIdAndPageNameAndPageWebPath(
                 cmsPage.getSiteId(), cmsPage.getPageName(), cmsPage.getPageWebPath()
         );
         if (page != null) {
@@ -398,7 +359,7 @@ public class CmsPageService {
         // 站点ID
         String siteId = cmsp.getSiteId();
         // 站点信息
-        CmsSite site = findCmsSiteById(siteId);
+        CmsSite site = siteService.findCmsSiteById(siteId);
         // 取出站点路径
         String siteDomain = site.getSiteDomain();
         // 站点的web路径
@@ -410,13 +371,5 @@ public class CmsPageService {
         // 页面的访问路径
         String url = siteDomain + siteWebpath + pageWebpath + pageName;
         return new CmsPostPageResult(CommonCode.SUCCESS,url);
-
-    }
-
-    // 根据ID查询站点的信息
-    private CmsSite findCmsSiteById(String siteId) {
-
-        Optional<CmsSite> optional = cmsSiteRepository.findById(siteId);
-        return optional.orElse(null);
     }
 }

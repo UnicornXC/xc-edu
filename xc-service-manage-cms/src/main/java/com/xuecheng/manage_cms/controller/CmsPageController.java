@@ -68,6 +68,11 @@ public class CmsPageController implements CmsPageControllerApi {
         //md5  abea232200712179ed3dce1505c1be46
     }
 
+    /**
+     * if page exists, update it either add it
+     * @param cmsPage
+     * @return
+     */
     @Override
     @PostMapping("/save")
     public CmsPageResult save(@RequestBody CmsPage cmsPage) {

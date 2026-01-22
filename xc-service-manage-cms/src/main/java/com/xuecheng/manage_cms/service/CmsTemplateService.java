@@ -1,5 +1,8 @@
 package com.xuecheng.manage_cms.service;
 
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.GridFSDownloadStream;
+import com.mongodb.client.gridfs.model.GridFSFile;
 import com.xuecheng.framework.domain.cms.CmsSite;
 import com.xuecheng.framework.domain.cms.CmsTemplate;
 import com.xuecheng.framework.domain.cms.request.QueryTemplateRequest;
@@ -9,14 +12,18 @@ import com.xuecheng.framework.model.response.QueryResponseResult;
 import com.xuecheng.framework.model.response.QueryResult;
 import com.xuecheng.framework.model.response.ResponseResult;
 import com.xuecheng.manage_cms.dao.CmsTemplateRepository;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +34,8 @@ public class CmsTemplateService {
     private CmsTemplateRepository templateRepository;
 
     @Autowired
-    private GridFsTemplate gridFsTemplate;
+    private GridFileService gridFileService;
+
 
     public QueryResponseResult<CmsTemplate> findAll() {
         List<CmsTemplate> list = templateRepository.findAll();
@@ -84,6 +92,25 @@ public class CmsTemplateService {
                 .orElseGet(() -> new CmsTemplateResult(CommonCode.FAIL, null));
     }
 
+    //获取数据的模板信息
+    public String getTemplateFileByTemplateId(String templateId){
+        //借助tmplateId在数据库中查找对应的模板
+        Optional<CmsTemplate> optional = templateRepository.findById(templateId);
+        if (optional.isPresent()){
+            CmsTemplate cmsTemplate = optional.get();
+            String templateFileId = cmsTemplate.getTemplateFileId();
+
+            GridFsResource gridFsResource = gridFileService.downloadFileById(templateFileId);
+
+            try {
+                return IOUtils.toString(gridFsResource.getInputStream(), StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
 
     public ResponseResult deleteById(String templateId) {
         CmsTemplateResult result = findById(templateId);
@@ -94,7 +121,7 @@ public class CmsTemplateService {
 
         String fileId = template.getTemplateFileId();
         if (fileId != null) {
-            gridFsTemplate.delete(Query.query(Criteria.where("_id").is(fileId)));
+            gridFileService.deleteById(fileId);
         }
         templateRepository.deleteById(templateId);
         return ResponseResult.SUCCESS();
@@ -107,6 +134,7 @@ public class CmsTemplateService {
         if (template == null) {
             cmsTemplate.setTemplateId(null);
             templateRepository.save(cmsTemplate);
+            return new CmsTemplateResult(CommonCode.SUCCESS, cmsTemplate);
         }
         return new CmsTemplateResult(CommonCode.INVALID_PARAM, null);
     }
