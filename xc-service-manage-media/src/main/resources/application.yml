@@ -5,19 +5,19 @@ spring:
     name: xc-service-manage-media
   data:
     mongodb:
-      uri:  mongodb://localhost:27017
+      uri:  mongodb://admin:admin@192.168.80.190:27017
       database: xc_media
   rabbitmq:
-    host: 192.168.64.128
+    host: 192.168.80.190
     port: 5672
-    username: admin
-    password: admin
+    username: guest
+    password: guest
     virtual-host: /xuecheng
 xc-service-manage-media:
   mq:
     queue-media-video-processor: queue_media_video_processor
     routingkey-media-video: routingkey_media_video
-  upload-location: D:/logs/temp/xcEdu
+  upload-location: /home/unicorn/deploys/videos
 eureka:
   client:
     registerWithEureka: true #服务注册开关

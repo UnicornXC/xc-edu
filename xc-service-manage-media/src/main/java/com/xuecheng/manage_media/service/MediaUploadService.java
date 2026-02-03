@@ -131,30 +131,14 @@ public class MediaUploadService {
         // 获取上传文件
         File chunkFile = new File(chunkFilePath);
 
-        // 获取上传的文件流
-        InputStream in = null;
-        FileOutputStream out = null;
-        try{
-            in = file.getInputStream();
-            out = new FileOutputStream(chunkFile);
+        // 获取上传的文件流() try(resource) {}  自动关闭资源
+        try(
+            InputStream in = file.getInputStream();
+            FileOutputStream out = new FileOutputStream(chunkFile);
+        ){
             IOUtils.copy(in, out);
         }catch (Exception e){
             e.printStackTrace();
-        }finally{
-            try{
-                in.close();
-            }catch (IOException e){
-                e.printStackTrace();
-            }finally{
-                in = null;
-            }
-            try {
-                out.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }finally {
-                out = null;
-            }
         }
         return new ResponseResult(CommonCode.SUCCESS);
     }
@@ -308,37 +292,32 @@ public class MediaUploadService {
      * @return
      */
     private File MergeFileChunks(List<File> chunks,File targetFile) {
+        if(targetFile.exists()){
+            //targetFile.delete();
+            return targetFile;
+        }
+        // 对文件进行排序
+        List<File> collect = chunks
+                .stream()
+                .sorted(Comparator.comparingInt(a -> Integer.parseInt(a.getName())))
+                .collect(Collectors.toList());
         try {
-            if(targetFile.exists()){
-                //targetFile.delete();
-                return targetFile;
-            }else{
-                // 创建一个新文件，
-                boolean file = targetFile.createNewFile();
-                if(file){
-                    // 对文件进行排序
-                    List<File> collect = chunks.stream()
-                        .sorted(
-                           Comparator.comparingInt(
-                              a -> Integer.parseInt(a.getName())
-                           )
-                        ).collect(Collectors.toList());
-                    // 将文件按照排序进行合并
-                    RandomAccessFile ref_write = new RandomAccessFile(targetFile, "rw");
-                    byte[] buf = new byte[1024];
-                    for (File e : collect) {
-                        RandomAccessFile ref_read = new RandomAccessFile(e, "r");
-                        int len = -1;
-                        while ((len = ref_read.read(buf)) != -1) {
-                            ref_write.write(buf, 0, len);
-                        }
-                        ref_read.close();
-                    }
-                    ref_write.close();
-                }else{
-                    ExceptionCast.cast(MediaCode.UPLOAD_FILE_REGISTER_FAIL);
-                }
+            // 创建一个新文件，
+            if(!targetFile.createNewFile()) {
+                ExceptionCast.cast(MediaCode.UPLOAD_FILE_REGISTER_FAIL);
             }
+            // 将文件按照排序进行合并
+            RandomAccessFile ref_write = new RandomAccessFile(targetFile, "rw");
+            byte[] buf = new byte[1024];
+            for (File e : collect) {
+                RandomAccessFile ref_read = new RandomAccessFile(e, "r");
+                int len = -1;
+                while ((len = ref_read.read(buf)) != -1) {
+                    ref_write.write(buf, 0, len);
+                }
+                ref_read.close();
+            }
+            ref_write.close();
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -357,32 +336,20 @@ public class MediaUploadService {
         if(mergedFile == null || StringUtil.isNullOrEmpty(fileMd5)){
             return false;
         }
-        FileInputStream fin = null;
-        try {
-            // 计算合并之后的文件的Md5 值
-            fin = new FileInputStream(mergedFile);
+        // 计算合并之后的文件的Md5 值
+        try(FileInputStream fin = new FileInputStream(mergedFile)) {
             String Md5Hex = DigestUtils.md5Hex(fin);
-
             // 与传入的文件Md5 进行比较，
             if(!fileMd5.equalsIgnoreCase(Md5Hex)){
                 result = false;
             }
         } catch (IOException e) {
             e.printStackTrace();
-            log.error(
-                    "checkMd5 error: file is {}, Md5 is {}",
-                    mergedFile.getAbsoluteFile(),
-                    fileMd5
+            log.error("checkMd5 error: file is {}, Md5 is {}",
+                mergedFile.getAbsoluteFile(),
+                fileMd5
             );
             ExceptionCast.cast(MediaCode.MERGE_FILE_CHECKFAIL);
-        }finally{
-            try{
-                fin.close();
-            }catch (IOException e){
-                e.printStackTrace();
-            }finally {
-                fin = null;
-            }
         }
         return result;
     }
