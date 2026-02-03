@@ -67,7 +67,7 @@ public class EsCourseService {
         }
         // 创建搜索请求
         SearchRequest request = new SearchRequest(index);
-        request.types(type);
+        // request.types(type);
         final String[] fields = source_field.split(",");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.fetchSource(

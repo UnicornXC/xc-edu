@@ -27,8 +27,8 @@ public class EsCourseController implements EsCourseControllerApi {
     @Override
     @GetMapping(value = "/list/{page}/{size}")
     public QueryResponseResult<CoursePub> list(
-            @PathVariable("page") int page,
-            @PathVariable("size") int size,
+            @PathVariable int page,
+            @PathVariable int size,
             CourseSearchParam courseSearchParam
     ) {
         return esCourseService.list(page,size,courseSearchParam);
@@ -43,7 +43,7 @@ public class EsCourseController implements EsCourseControllerApi {
     @Override
     @GetMapping("/getmedia/{teachplanId}")
     public TeachplanMediaPub getMediaByTeachplanId(
-            @PathVariable("teachplanId") String teachplanId
+            @PathVariable String teachplanId
     ) {
         // 将课程计划Id放在数据中调用service服务
 

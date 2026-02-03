@@ -29,6 +29,11 @@ import java.util.stream.Stream;
 @RunWith(SpringRunner.class)
 public class TestManageIndex {
 
+    /**
+     * es version 7.10.1 has removed type, so if you execute this code, need comment
+     *  searchRequest.types("doc");
+     *
+     */
 
     @Autowired
     private RestHighLevelClient client;
@@ -226,10 +231,10 @@ public class TestManageIndex {
      *   符合条件
      * ----------------------------------------------------------------
      * 执行过程:
-     *  1、 将 spring开发分词为 spring, 开发两个词，
+     *  1、将 `spring开发` 分词为 `spring`, `开发` 两个词，
      *  2、再使用这两个词再索引中搜索
      *  3、由于设置了 operator 为or，只要文档中包含其中一个词语就返回该文档。
-     *  4、minimum_should_match: 80%可以设置文档关键词匹配比例, 按照分词的比例进行删选文档
+     *  4、`minimum_should_match: 80%` 可以设置文档关键词匹配比例, 按照分词的比例进行删选文档
      *      假设搜索的字符串分词之后是 7 个，哪个需要匹配 7 * 80% = 5.6 向上取整后表示至少要
      *      有5个词与文档匹配才会返回。
      *
