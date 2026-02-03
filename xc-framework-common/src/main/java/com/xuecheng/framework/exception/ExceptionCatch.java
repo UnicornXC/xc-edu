@@ -34,7 +34,7 @@ public class ExceptionCatch {
     @ExceptionHandler(CustomException.class)
     @ResponseBody  //将返回的错误信息转换为json
     public ResponseResult customException(CustomException e) {
-        LOGGER.error("catch Exception: {}", e.getMessage());
+        LOGGER.error("catch Exception: {}", e.getResultCode().message());
         e.printStackTrace();
         ResultCode resultCode = e.getResultCode();
         return new ResponseResult(resultCode);
